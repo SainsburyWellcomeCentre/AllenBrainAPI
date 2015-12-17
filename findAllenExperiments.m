@@ -29,6 +29,13 @@ function varargout = findAllenExperiments(varargin)
 % findAllenExperiments('injection','Isocortex'); 
 % 
 % Rob Campbell - Basel 2015
+%
+% requires JSONlab from the FEX
+
+if ~exist('loadjson')
+   disp('Please install JSONlab from the FEX') 
+   return
+end
 
 %Handle input arguments
 params = inputParser;
