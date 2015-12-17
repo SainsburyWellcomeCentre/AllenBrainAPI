@@ -43,7 +43,7 @@ url = 'http://connectivity.brain-map.org/api/v2/data/ProjectionStructureUnionize
 %Get projection data (this can be slow)
 for ii=1:length(expID)
     if length(expID)>1
-        fprintf('Getting data for experiment ID %d\n',expID(ii))
+        fprintf('%d/%d. Getting data for experiment ID %d\n',ii,length(expID),expID(ii))
     end
     try 
         page{ii} = urlread(sprintf(url,expID(ii)));
