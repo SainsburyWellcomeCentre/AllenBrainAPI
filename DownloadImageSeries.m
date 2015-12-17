@@ -1,11 +1,21 @@
 function DownloadImageSeries(outdir, expid, varargin)
+% download Allen sample brain using the Allen API
+%
+% function DownloadImageSeries(outdir, expid, varargin)
+%
+% 
+% Inputs [required]
 % outdir - where to put the JPEGs
 % expid  - numerical experiment ID assigned by Allen
-
-% Optional parameters:
+%
+% Inputs [optional]
 % 'downsample' sets how many times the image will be downsampled and scaled down, 
 %   e.g. downsample=3 means the image will be 1/2^3 = 1/8 of original size. 
 % 'range' specifies the range of 16 bit RGB values that will be mapped onto 8 bit
+%
+%
+% PZ
+
 
 params = inputParser;
 params.addParamValue('range', '0,2500,0,2500,0,4095', @ischar);
