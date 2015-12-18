@@ -13,7 +13,27 @@ function result = getProjectionDataFromExperiment(expID)
 %
 %
 % Outputs
-% data - the connectivity data in a cell array [of length equal to length(expID)] of structures
+% data - the connectivity data in a cell array [of length equal to length(expID)] of structures.
+%        The output structure as the following fields
+%    hemisphere_id                  
+%    id  .  .  .  .  .  .  .  .  . experiment ID
+%    is_injection .  .  .  .  .  . is the labeling here part of the injection volume?
+%    max_voxel_density
+%    max_voxel_x
+%    max_voxel_y
+%    max_voxel_z
+%    normalized_projection_volume
+%    projection_density
+%    projection_energy
+%    projection_intensity
+%    projection_volume
+%    section_data_set_id
+%    structure_id
+%    sum_pixel_intensity
+%    sum_pixels
+%    sum_projection_pixel_intensity
+%    sum_projection_pixels
+%    volume
 %
 % 
 % Rob Campbell - Basel 2015
