@@ -22,7 +22,9 @@ function [IDs,names] = getInjectionIDfromExperiment(expIDs)
 % 
 %
 % Rob Campbell - Basel 2015
-
+%
+% See Also:
+% findAllenExperiments
 
 
 

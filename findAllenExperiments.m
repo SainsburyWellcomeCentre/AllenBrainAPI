@@ -1,7 +1,7 @@
 function varargout = findAllenExperiments(varargin)
 % find all Allen experiments defined parameters
 %
-% function [IDs,json]=DownloadImageSeries('param1','val1','param2','val2',...)
+% function [IDs,json]=findAllenExperiments('param1','val1','param2','val2',...)
 %
 % 
 % Inputs
@@ -31,6 +31,10 @@ function varargout = findAllenExperiments(varargin)
 % Rob Campbell - Basel 2015
 %
 % requires JSONlab from the FEX
+%
+% See Also:
+% getInjectionIDfromExperiment
+
 
 if ~exist('loadjson')
    disp('Please install JSONlab from the FEX') 
