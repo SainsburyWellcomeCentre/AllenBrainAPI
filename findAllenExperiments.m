@@ -77,7 +77,7 @@ url = [url,'[primary_structure_only$eq',primary,']'];
 page=urlread(url);
 result=loadjson(page);
 if ~result.success
-    fprintf('Query failed!\n%s\n',result.msg);
+    fprintf('Query failed!\n%s\nAt URL: %s\n\n',result.msg,url);
 end
 
 
