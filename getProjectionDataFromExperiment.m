@@ -15,25 +15,25 @@ function result = getProjectionDataFromExperiment(expID)
 % Outputs
 % data - the connectivity data in a cell array [of length equal to length(expID)] of structures.
 %        The output structure as the following fields
-%    hemisphere_id                  
+%    hemisphere_id
 %    id  .  .  .  .  .  .  .  .  . experiment ID
-%    is_injection .  .  .  .  .  . is the labeling here part of the injection volume?
+%    is_injection .  .  .  .  .  . the labeling here part of the injection volume?
 %    max_voxel_density
 %    max_voxel_x
 %    max_voxel_y
 %    max_voxel_z
 %    normalized_projection_volume
-%    projection_density
-%    projection_energy
-%    projection_intensity
+%    projection_density .  .  .  . detected signal volume / structure volume  sum detected pixels / sum all pixels in a grid 
+%    projection_intensity. .  .  . sum detected pixel intensity / sum all detected pixels
+%    projection_energy. .  .  .  . sum detected pixel intensity / structure volume
 %    projection_volume
 %    section_data_set_id
-%    structure_id
+%    structure_id .  .  .  .  .  . the ID of the brain area with which these data are associated.
 %    sum_pixel_intensity
 %    sum_pixels
 %    sum_projection_pixel_intensity
 %    sum_projection_pixels
-%    volume
+%    volume .  .  .  .  .  .  .  . sum of detected signal volume in mm^3 (I think)
 %
 % 
 % Rob Campbell - Basel 2015
