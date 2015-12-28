@@ -24,6 +24,8 @@ function varargout = findAllenExperiments(varargin)
 %
 % b) Return all experiments with injections in V1
 % findAllenExperiments('injection','VISp'); 
+% or:
+% findAllenExperiments('injection','385'); 
 %
 % c) Return all experiments with injections in cortex
 % findAllenExperiments('injection','Isocortex'); 
