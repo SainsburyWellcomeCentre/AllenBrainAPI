@@ -53,6 +53,8 @@ om = m(row_order,col_order);
 row_acronyms = row_acronyms(row_order);
 col_acronyms = col_acronyms(col_order);
 
+
+%Make the plot
 clf
 imagesc(om)
 set(gca,'YTick',1:size(om,1), 'YTickLabel',row_acronyms, 'XTick',1:size(om,2), 'XTickLabel',col_acronyms)
@@ -63,17 +65,10 @@ xlabel('target structure')
 ylabel('primary injection structure')
 title('Cortico-thalamic projection')
 
-%row_order = rev(order(sapply(rownames(m), function(x) data_sets[data_sets$section_data_set_id == x,]$graph_order)))
-%col_order = order(sapply(colnames(m), function(x) structures[structures$id == x,]$graph_order))
-%om = m[row_order,col_order]
-
-
-%hot = colorRampPalette(c("black","red","yellow","white"))(256)
-%heatmap(om, Rowv = NA, Colv = NA, labRow=row_acronyms[row_order], labCol=col_acronyms[col_order], main="Cortico-thalamic Projection", xlab="Target Structure", ylab="Primary Injection Structure", col=hot, scale="none")
 
 
 
-
+%----------------------------------------------
 function thisTable=url2table(url)
 	%Read a URL into a table
 	thalamusTMP='/tmp/thalamus.csv';
