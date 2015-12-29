@@ -60,21 +60,10 @@ end
 
 col_names = strsplit(fgetl(fid),','); %The names of the columns in the main cell array
 
+
 %Loop through and read each data row
-ARA_list={};
-tline = fgetl(fid);
-
-while ischar(tline)
-	%First we need to get rid of any 
-	tmp=textscan(tline,'%d%d%q%s%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s','delimiter',',','emptyvalue',-inf);
-	ARA_list = [ARA_list;tmp];
-	tline=fgetl(fid);
-end
-
-
-
-
-
+readParams={'%d%d%q%q%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s\n','delimiter',',','emptyvalue',-inf};
+ARA_list=textscan(fid,readParams{:});
 fclose(fid);
 
 %save to disk if needed

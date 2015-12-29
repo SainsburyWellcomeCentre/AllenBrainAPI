@@ -34,13 +34,13 @@ allIDs = [ARA_LIST{:,1}];
 
 
 for ii=1:length(structIDs)
-	f=find(allIDs == structIDs(ii));
+	f=find(ARA_LIST{1} == structIDs(ii));
 	if isempty(f)
 		continue
 	end
 	if length(f)>1
 		error('found more than one ID index')
 	end
-	names{ii} = ARA_LIST{f,3}{1};
+	names{ii} = ARA_LIST{3}{f};
 end
 
