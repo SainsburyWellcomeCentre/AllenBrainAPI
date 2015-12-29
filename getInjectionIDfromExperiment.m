@@ -38,6 +38,7 @@ csvQueryURl = 'http://api.brain-map.org/api/v2/data/query.csv';
 % but only one primary injection structure, so the 'distinct' clause limits the 
 % results to one data set and primary injection structure per row.
 % two percent sizes instead of one because we need to escape them for sprintf to work.
+% TODO: perhaps make this more flexible or create a function that allows more elaborate API queries.
 queryURL = '?criteria=model::SectionDataSet,rma::criteria,[id$in%s],specimen%%28injections%%29,rma::options[tabular$eq%%27distinct%%20data_sets.id%%20as%%20section_data_set_id,injections.primary_injection_structure_id%%27]';
 
 
