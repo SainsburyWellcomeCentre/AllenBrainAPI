@@ -77,5 +77,7 @@ end
 
 fclose(fid);
 
-
-save(cachedMAT,'col_names','ARA_list')
+%save to disk if needed
+if ~exist(cachedMAT) | downloadAgain
+	save(cachedMAT,'col_names','ARA_list')
+end
