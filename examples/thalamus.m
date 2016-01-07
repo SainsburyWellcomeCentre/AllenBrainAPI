@@ -12,7 +12,7 @@ function thalamus
 % Rob Campbell - Basel 2015
 
 
-[~,~,structures] = getAllenStructureList; %read structure data as a table
+structures = getAllenStructureList; %read structure data as a table
 
 data_sets = url2table('http://api.brain-map.org/api/v2/data/query.csv?criteria=model::SectionDataSet,rma::criteria,[id$in100141219,112423392,127084296,127866392,139426984,146858006,112424813],specimen%28injections%29,rma::options[tabular$eq%27distinct%20data_sets.id%20as%20section_data_set_id,injections.primary_injection_structure_id%27]');
 

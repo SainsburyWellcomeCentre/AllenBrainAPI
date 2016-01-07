@@ -17,6 +17,16 @@ function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST)
 % names - a list of brain area names
 % ARA_LIST - the CSV data in the form of a cell array
 %
+%
+% Example
+%
+% >> structureID2name(644) 
+%
+% ans = 
+%
+%    'Somatomotor areas, Layer 6a'
+%
+%
 % Rob Campbell
 %
 % See also:
@@ -30,17 +40,15 @@ end
 
 %loop through and find all the IDs
 names={};
-allIDs = [ARA_LIST{:,1}];
-
 
 for ii=1:length(structIDs)
-	f=find(ARA_LIST{1} == structIDs(ii));
+	f=find(ARA_LIST.id == structIDs(ii));
 	if isempty(f)
 		continue
 	end
 	if length(f)>1
 		error('found more than one ID index')
 	end
-	names{ii} = ARA_LIST{3}{f};
+	names{ii} = ARA_LIST.name{f};
 end
 

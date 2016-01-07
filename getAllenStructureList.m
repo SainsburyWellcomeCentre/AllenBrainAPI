@@ -1,7 +1,7 @@
-function [ARA_list, col_names, ARA_table] = getAllenStructureList(downloadAgain)
+function ARA_table = getAllenStructureList(downloadAgain)
 % Download the list of adult mouse structures from the Allen API. 
 %
-% function [ARA_list, col_names, ARA_table] = getAllenStructureList(downloadAgain)
+% function ARA_table = getAllenStructureList(downloadAgain)
 %
 % Purpose
 % Make an API query to read in the Allen Reference Atlas (ARA) brain area
@@ -14,10 +14,7 @@ function [ARA_list, col_names, ARA_table] = getAllenStructureList(downloadAgain)
 %
 %
 % Outputs
-% ARA_list - a cell array of cell arrays containing the imported data. 
-%            missing values replaced with -inf
-% col_names - a cell array identifying what is stored in each cell of ARA_list.
-% ARA_table - the data data in table format
+% ARA_table - a table containing the imported data. 
 %
 %
 % Rob Campbell - Basel 2015
@@ -71,5 +68,5 @@ ARA_table=readtable(cachedCSV,'format',readParams{:});
 
 %save to disk if needed
 if ~exist(cachedMAT) | downloadAgain
-	save(cachedMAT,'col_names','ARA_list','ARA_table')
+	save(cachedMAT,'ARA_table')
 end
