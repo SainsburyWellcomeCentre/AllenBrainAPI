@@ -18,13 +18,15 @@ function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST)
 % ARA_LIST - the CSV data in the form of a cell array
 %
 %
-% Example
+% Examples
 %
 % >> structureID2name(644) 
-%
 % ans = 
-%
 %    'Somatomotor areas, Layer 6a'
+%
+% >> structureID2name([60,33])
+% ans = 
+%    'Entorhinal area, lateral part, layer 6b'    'Primary visual area, layer 6a'
 %
 %
 % Rob Campbell
