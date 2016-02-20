@@ -14,7 +14,7 @@ function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST)
 %
 %
 % Outputs
-% names - a list of brain area names
+% names - a list of brain area names in a cell array (if there is more than one name)
 % ARA_LIST - the CSV data in the form of a cell array
 %
 %
@@ -44,13 +44,23 @@ end
 names={};
 
 for ii=1:length(structIDs)
+	if structIDs(ii)==0
+		names{ii}='Out of brain';
+		continue
+	end
+
 	f=find(ARA_LIST.id == structIDs(ii));
 	if isempty(f)
+		fprintf('No name found for ID %d\n',structIDs(ii))
 		continue
 	end
 	if length(f)>1
 		error('found more than one ID index')
 	end
 	names{ii} = ARA_LIST.name{f};
+end
+
+if ~isempty(names) & length(names)==1
+	names=names{1};
 end
 
