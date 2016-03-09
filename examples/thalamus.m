@@ -71,7 +71,7 @@ title('Cortico-thalamic projection')
 %----------------------------------------------
 function thisTable=url2table(url)
 	%Read a URL into a table
-	thalamusTMP='/tmp/thalamus.csv';
+	thalamusTMP=fullfile(tempdir,'thalamus.csv');
 	urlwrite(url,thalamusTMP);
     thisTable=readtable(thalamusTMP);
     delete(thalamusTMP)

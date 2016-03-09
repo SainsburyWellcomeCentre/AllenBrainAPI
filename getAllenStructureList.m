@@ -26,8 +26,8 @@ end
 
 
 
-cachedCSV = sprintf('/tmp/%s_CACHED.csv',mfilename);
-cachedMAT =  sprintf('/tmp/%s_CACHED.mat',mfilename);
+cachedCSV = fullfile(tempdir,sprintf('%s_CACHED.csv',mfilename));
+cachedMAT = fullfile(tempdir,sprintf('%s_CACHED.mat',mfilename));
 
 
 
