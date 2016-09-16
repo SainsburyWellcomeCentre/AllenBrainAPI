@@ -60,7 +60,7 @@ col_names = strsplit(fgetl(fid),','); %The names of the columns in the main cell
 
 
 %Loop through and read each data row
-readParams={'%d%d%q%q%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s\n','delimiter',',','emptyvalue',-inf};
+readParams={'%d%d%q%q%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s\n','delimiter',','};
 ARA_list=textscan(fid,readParams{:});
 fclose(fid);
 
