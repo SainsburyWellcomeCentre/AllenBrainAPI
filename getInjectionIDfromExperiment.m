@@ -55,17 +55,17 @@ IDs = [];
 n=1;
 
 for ii = 2:length(result)
-	if length(result{ii})==0
-		continue
-	end
+    if length(result{ii})==0
+        continue
+    end
 
-	tmp=strsplit(result{ii},',');
+    tmp=strsplit(result{ii},',');
 
-	IDs(n) = str2num(tmp{2});
-	n=n+1;
+    IDs(n) = str2num(tmp{2});
+    n=n+1;
 end
 
 
 if nargout>1
-	names = structureID2name(IDs);
+    names = structureID2name(IDs);
 end
