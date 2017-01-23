@@ -15,10 +15,10 @@ Get structure list that underlies the Allen Reference Atlas:
 >> S=getAllenStructureList;
 ```
 
+
 Keep only the areas that are children of `Cerebellum`:
 ```
 >> S=getAllenStructureList('childrenOf','Cerebellum');
-
 ```
 
 ### Also see ###
