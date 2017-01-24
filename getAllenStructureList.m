@@ -22,6 +22,9 @@ function [ARA_table,tableRowInds] = getAllenStructureList(varargin)
 % 'childrenOf'     -  [empty] Returns only those areas that are children of
 %                    of the named area. As above, you may supply a string, numeric 
 %                    scalar, or a cell array that combines these.
+% 'excludeReferenceArea' - [false] if true, the areas supplied by the childrenOf
+%                           and ancestorOf arguments are removed from the 
+%                           outputs.
 %
 %
 % Outputs
@@ -50,9 +53,7 @@ function [ARA_table,tableRowInds] = getAllenStructureList(varargin)
 %
 %  d) Remove the cerebellum's children but keep the cerebellum
 %  S=getAllenStructureList;
-%  areaName='Cerebellum';
-%  [tmp,ind]=getAllenStructureList('childrenOf',areaName);
-%  ind(strmatch(areaName,tmp.name))=[];
+%  [~,ind]=getAllenStructureList('childrenOf','Cerebellum', 'excludeReferenceArea',true);
 %  S(ind,:)=[];  
 %
 %
@@ -75,6 +76,7 @@ params.CaseSensitive = false;
 params.addParamValue('downloadAgain', false, @(x) islogical(x) || x==0 || x==1);
 params.addParamValue('ancestorsOf', {}, @(x) ischar(x) || isnumeric(x) || iscell(x))
 params.addParamValue('childrenOf', {}, @(x) ischar(x) || isnumeric(x) || iscell(x))
+params.addParamValue('excludeReferenceArea', false, @(x) islogical(x) || x==0 || x==1);
 params.parse(varargin{:})
 
 downloadAgain = params.Results.downloadAgain;
@@ -82,7 +84,7 @@ downloadAgain = params.Results.downloadAgain;
 %Ensure that ancestorsOf and chilrenOf are cell arrays of IDs or names in order to simplify later code
 ancestorsOf = checkFilteringInput(params.Results.ancestorsOf);
 childrenOf = checkFilteringInput(params.Results.childrenOf);
-
+excludeReferenceArea = params.Results.excludeReferenceArea;
 
 
 %Cached files will be stored here
@@ -129,12 +131,12 @@ end
 
 %Filter the structure list if needed
 if isempty(ancestorsOf) && ~isempty(childrenOf)
-    [ARA_table,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf);
+    [ARA_table,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf,excludeReferenceArea);
 elseif ~isempty(ancestorsOf) && isempty(childrenOf)
-    [ARA_table,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsOf);
+    [ARA_table,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsOf,excludeReferenceArea);
 elseif ~isempty(ancestorsOf) && ~isempty(childrenOf)
-    [ARA_tableC,tableRowIndsC] = returnChildrenOnly(ARA_table,childrenOf);
-    [ARA_tableA,tableRowIndsA] = returnChildrenOnly(ARA_table,ancestorsOf);
+    [ARA_tableC,tableRowIndsC] = returnChildrenOnly(ARA_table,childrenOf,excludeReferenceArea);
+    [ARA_tableA,tableRowIndsA] = returnAncestorsOnly(ARA_table,ancestorsOf,excludeReferenceArea);
     ARA_table = unique([ARA_tableC;ARA_tableA]);
     tableRowInds = unique([tableRowIndsC;tableRowIndsA]);
 end
@@ -161,7 +163,7 @@ function fInput = checkFilteringInput(fInput)
 
 
 
-function [returnedTable,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsOf)
+function [returnedTable,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsOf,excludeReferenceArea)
     % If the user asked for only the ancestors of an area, we search for these here and
     % return an empty array with an on-screen warning if nothing could be found. 
     % 
@@ -190,7 +192,16 @@ function [returnedTable,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsO
     for ii=1:length(childRows)
         grandpa = ARA_table.structure_id_path(childRows(ii));
         grandpa = strsplit(grandpa{1},'/'); %produce a cell array of character arrays that are area index values
-        ancestors = [ancestors, cell2mat(cellfun(@str2num,grandpa,'UniformOutput',false))];
+        grandpa = cell2mat(cellfun(@str2num,grandpa,'UniformOutput',false));
+        ancestors = [ancestors, grandpa];
+    end
+
+    if excludeReferenceArea
+        %Don't keep if this is the root area whose children we are looking for if the user asked to discard this
+        for ii = 1:length(childRows)
+            thisID = ARA_table.id(childRows(ii));
+            ancestors(ancestors==thisID)=[];
+        end
     end
 
     if isempty(childRows) || isempty(ancestors)
@@ -211,7 +222,7 @@ function [returnedTable,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsO
 
 
 
-function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf)
+function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf,excludeReferenceArea)
     % If the user asked for only the children of an area, we search for these here and
     % return an empty array with an on-screen warning if nothing could be found. 
     %
@@ -250,13 +261,17 @@ function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf)
 
             sID = strsplit(ARA_table.structure_id_path{thisRow},'/');
             sID = cell2mat(cellfun(@str2num,sID,'UniformOutput',false));
-            if find(sID==ind(thisInd))
+            f=find(sID==ind(thisInd));
+            if ~isempty(f)
+                %Don't keep if this is the root area whose children we are looking for if the user asked to discard this
+                if excludeReferenceArea && max(f)==length(sID) %this works because it returns true when the target area is the last in the list
+                    continue
+                end
                 tableRowInds(end+1)=thisRow;
             end
 
         end    
     end
-
 
     if isempty(tableRowInds)
         fprintf('\n\n *** NO CHILDREN FOUND. RETURNING EMPTY ARRAY ***\n\n')
@@ -264,5 +279,5 @@ function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf)
         return
     end
 
-
     returnedTable = ARA_table(tableRowInds,:); %filter it
+
