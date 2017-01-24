@@ -1,4 +1,4 @@
-function ARA_table = getAllenStructureList(varargin)
+function [ARA_table,tableRowInds] = getAllenStructureList(varargin)
 % Download the list of adult mouse structures from the Allen API. 
 %
 % function ARA_table = getAllenStructureList('param1',val1,...)
@@ -26,13 +26,35 @@ function ARA_table = getAllenStructureList(varargin)
 %
 % Outputs
 % ARA_table - a table containing the imported data. 
+% tableRowInds - The rows in the original table that are present in ARA_table.
+%                If the user has selected a subset of data using the childrenOf
+%                of or ancestorsOf arguments, then tableRowInds is:
+%                ARA_table = ORIGINAL_TABLE(tableRowInds,:);
 %
 %
 % Examples
+%
+%  a) Basic usage
+%  S=getAllenStructureList;
+%
+%  b) Returning subsets of the data
 %  S=getAllenStructureList('ancestorsOf',{'Posterior auditory area, layer 1',1017})
 %  S=getAllenStructureList('ancestorsOf','Posterior auditory area, layer 1')
 %  S=getAllenStructureList('childrenOf','Cerebellum')
 %  S=getAllenStructureList('childrenOf','Cerebellum','ancestorsOf','Posterior auditory area, layer 1')
+%
+%  c) Remove the cerebellum
+%  S=getAllenStructureList;
+%  [~,ind]=getAllenStructureList('childrenOf','Cerebellum');
+%  S(ind,:)=[];
+%
+%  d) Remove the cerebellum's children but keep the cerebellum
+%  S=getAllenStructureList;
+%  areaName='Cerebellum';
+%  [tmp,ind]=getAllenStructureList('childrenOf',areaName);
+%  ind(strmatch(areaName,tmp.name))=[];
+%  S(ind,:)=[];  
+%
 %
 %
 % Rob Campbell - Basel 2015
@@ -69,57 +91,57 @@ cachedMAT = fullfile(tempdir,sprintf('%s_CACHED.mat',mfilename));
 
 
 
-if ~downloadAgain 
-    if exist(cachedMAT) %If the data have been imported before we can just return them
-        load(cachedMAT)
+if ~exist(cachedMAT,'file') || downloadAgain
+    % The data are to be re-read or we couldn't find any cached data
 
-        if isempty(ancestorsOf) && ~isempty(childrenOf)
-            ARA_table = returnChildrenOnly(ARA_table,childrenOf);
-        elseif ~isempty(ancestorsOf) && isempty(childrenOf)
-            ARA_table = returnAncestorsOnly(ARA_table,ancestorsOf);
-        elseif ~isempty(ancestorsOf) && ~isempty(childrenOf)
-            ARA_table = unique([returnChildrenOnly(ARA_table,childrenOf);...
-                        returnAncestorsOnly(ARA_table,ancestorsOf)]);
-        end
-
-        return
+    % The adult mouse structure graph has an id of 1.       
+    url='http://api.brain-map.org/api/v2/data/Structure/query.csv?criteria=[graph_id$eq1]&num_rows=all';
+    [~,status] = urlwrite(url,cachedCSV);
+    if ~status
+        error('Failed to get CSV file from URL %s', url)
     end
-end
 
+    fid = fopen(cachedCSV);
+    if fid<0
+        error('Failed to open CSV file at %s\n', cachedCSV)
+    end
 
+    col_names = strsplit(fgetl(fid),','); %The names of the columns in the main cell array
 
-%If we get here, the user either asked for the data be re-read or we couldn't find any cached data
+    %Loop through and read each data row
+    readParams={'%d%d%q%q%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s\n','delimiter',','};
+    ARA_table=textscan(fid,readParams{:});
+    fclose(fid);
 
-% The adult mouse structure graph has an id of 1.       
-url='http://api.brain-map.org/api/v2/data/Structure/query.csv?criteria=[graph_id$eq1]&num_rows=all';
-[~,status] = urlwrite(url,cachedCSV);
-if ~status
-    error('Failed to get CSV file from URL %s', url)
-end
+    ARA_table=readtable(cachedCSV,'format',readParams{:});
 
-
-fid = fopen(cachedCSV);
-if fid<0
-    error('Failed to open CSV file at %s\n', cachedCSV)
-end
-
-
-col_names = strsplit(fgetl(fid),','); %The names of the columns in the main cell array
-
-
-%Loop through and read each data row
-readParams={'%d%d%q%q%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s\n','delimiter',','};
-ARA_table=textscan(fid,readParams{:});
-fclose(fid);
-
-ARA_table=readtable(cachedCSV,'format',readParams{:});
-
-%save to disk if needed
-if ~exist(cachedMAT) | downloadAgain
+    %cache to disk in temporary location
     save(cachedMAT,'ARA_table')
+
+else
+    %If the data have been imported before we can just return them
+    load(cachedMAT)
 end
 
-ARA_table = returnAncestorsOnly(ARA_table,ancestorsOf);
+
+
+
+
+%Filter the structure list if needed
+if isempty(ancestorsOf) && ~isempty(childrenOf)
+    [ARA_table,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf);
+elseif ~isempty(ancestorsOf) && isempty(childrenOf)
+    [ARA_table,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsOf);
+elseif ~isempty(ancestorsOf) && ~isempty(childrenOf)
+    [ARA_tableC,tableRowIndsC] = returnChildrenOnly(ARA_table,childrenOf);
+    [ARA_tableA,tableRowIndsA] = returnChildrenOnly(ARA_table,ancestorsOf);
+    ARA_table = unique([ARA_tableC;ARA_tableA]);
+    tableRowInds = unique([tableRowIndsC;tableRowIndsA]);
+end
+
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -139,12 +161,17 @@ function fInput = checkFilteringInput(fInput)
 
 
 
-function returnedTable = returnAncestorsOnly(ARA_table,ancestorsOf)
+function [returnedTable,tableRowInds] = returnAncestorsOnly(ARA_table,ancestorsOf)
     % If the user asked for only the ancestors of an area, we search for these here and
     % return an empty array with an on-screen warning if nothing could be found. 
+    % 
+    % Outputs
+    % returnedTable - the table containing only the ancestors of the selected area
+    % tableRowInds - these are: returnedTable = ARA_table(tableRowInds,:)
 
     if isempty(ancestorsOf)
         returnedTable=ARA_table;
+        tableRowInds=[];
         return
     end
 
@@ -169,26 +196,32 @@ function returnedTable = returnAncestorsOnly(ARA_table,ancestorsOf)
     if isempty(childRows) || isempty(ancestors)
         fprintf('\n\n *** NO ANCESTORS FOUND. RETURNING EMPTY ARRAY ***\n\n')
         returnedTable=[];
+        tableRowInds=[];
         return
     end
 
-    ancestors = unique(ancestors);
+    tableRowInds = unique(ancestors);
     for ii=1:length(ancestors)
-        ancestors(ii)=find(ARA_table.id==ancestors(ii));
+        tableRowInds(ii)=find(ARA_table.id==ancestors(ii));
     end
 
-    returnedTable = ARA_table(ancestors,:); %filter it
+    returnedTable = ARA_table(tableRowInds,:); %filter it
 
 
 
 
 
-function returnedTable = returnChildrenOnly(ARA_table,childrenOf)
+function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf)
     % If the user asked for only the children of an area, we search for these here and
     % return an empty array with an on-screen warning if nothing could be found. 
+    %
+    % Outputs
+    % returnedTable - the table containing only the children of the selected area
+    % tableRowInds - these are: returnedTable = ARA_table(tableRowInds,:)
 
     if isempty(childrenOf)
         returnedTable=ARA_table;
+        tableRowInds=[];
         return
     end
 
@@ -211,25 +244,25 @@ function returnedTable = returnChildrenOnly(ARA_table,childrenOf)
 
     % Now we will loop through the whole table and look for rows that list each of these
     % values in their structure_id_path
-    rowsToKeep = [];
+    tableRowInds = [];
     for thisInd = 1:length(ind)
         for thisRow = 1:height(ARA_table)
 
             sID = strsplit(ARA_table.structure_id_path{thisRow},'/');
             sID = cell2mat(cellfun(@str2num,sID,'UniformOutput',false));
             if find(sID==ind(thisInd))
-                rowsToKeep(end+1)=thisRow;
+                tableRowInds(end+1)=thisRow;
             end
 
         end    
     end
 
 
-    if isempty(rowsToKeep)
+    if isempty(tableRowInds)
         fprintf('\n\n *** NO CHILDREN FOUND. RETURNING EMPTY ARRAY ***\n\n')
         returnedTable=[];
         return
     end
 
 
-    returnedTable = ARA_table(rowsToKeep,:); %filter it
+    returnedTable = ARA_table(tableRowInds,:); %filter it
