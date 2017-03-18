@@ -1,4 +1,4 @@
-function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
+function [names,acronyms,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
 % convert a list of ARA structure IDs to a cell array of names
 %
 % function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
@@ -16,7 +16,8 @@ function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
 %
 % Outputs
 % names - a list of brain area names in a cell array (if there is more than one name)
-% ARA_LIST - the CSV data in the form of a cell array
+% acronyms - a list of brain area abbreviations in a cell array (if there is more than one)
+% ARA_LIST - the CSV data from getAllenStructureList in the form of a cell array
 %
 %
 % Examples
@@ -41,40 +42,41 @@ function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
 
 
 if nargin<2 || isempty(ARA_LIST)
-	ARA_LIST = getAllenStructureList;
+    ARA_LIST = getAllenStructureList;
 end
 
 if nargin<3
-	quiet = false;
+    quiet = false;
 end
 
 %loop through and find all the IDs
 names={};
 
 for ii=1:length(structIDs)
-	if structIDs(ii)==0
-		if ~quiet
-			names{ii}='Out of brain';
-		end
-		continue
-	end
+    if structIDs(ii)==0
+        if ~quiet
+            names{ii}='Out of brain';
+        end
+        continue
+    end
 
-	f=find(ARA_LIST.id == structIDs(ii));
-	if isempty(f)
-		if ~quiet
-			fprintf('%s finds no name for ARA ID %d\n',mfilename,structIDs(ii))
-		end
-		continue
-	end
-	if length(f)>1
-		if ~quiet
-			error('found more than one ID index')
-		end
-	end
-	names{ii} = ARA_LIST.name{f};
+    f=find(ARA_LIST.id == structIDs(ii));
+    if isempty(f)
+        if ~quiet
+            fprintf('%s finds no name for ARA ID %d\n',mfilename,structIDs(ii))
+        end
+        continue
+    end
+    if length(f)>1
+        if ~quiet
+            error('found more than one ID index')
+        end
+    end
+    names{ii} = ARA_LIST.name{f};
+    acronyms{ii} = ARA_LIST.acronym{f};
 end
 
 if ~isempty(names) & length(names)==1
-	names=names{1};
+    names=names{1};
 end
 
