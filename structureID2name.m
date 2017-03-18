@@ -1,11 +1,11 @@
 function [names,acronyms,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
-% convert a list of ARA structure IDs to a cell array of names
+% convert a list of ARA (Allen Reference Atlas) structure IDs to a cell array of names
 %
-% function [names,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
+% function [names,acronyms,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
 %
 % Purpose
 % Each Allen Reference Atlas (ARA) brain area is associated with a unique
-% number (structure ID). This function converts the ID to a an area name.
+% number (structure ID). This function converts the ID to an area name.
 % 
 %
 % Inputs
@@ -38,7 +38,7 @@ function [names,acronyms,ARA_LIST]=structureID2name(structIDs,ARA_LIST,quiet)
 % Rob Campbell
 %
 % See also:
-% getAllenStructureList
+% getAllenStructureList, acronym2structureID
 
 
 if nargin<2 || isempty(ARA_LIST)
