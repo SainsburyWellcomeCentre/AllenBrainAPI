@@ -6,12 +6,17 @@ function DownloadImageSeries(outdir, expid, varargin)
 % 
 % Inputs [required]
 % outdir - where to put the JPEGs
-% expid  - numerical experiment ID assigned by Allen
+% expid  - [numerical scalar] experiment ID assigned by Allen
 %
 % Inputs [optional]
 % 'downsample' sets how many times the image will be downsampled and scaled down, 
 %   e.g. downsample=3 means the image will be 1/2^3 = 1/8 of original size. 
 % 'range' specifies the range of 16 bit RGB values that will be mapped onto 8 bit
+%
+%
+% Example
+% - Pull in a nicely downsampled version of experiment ID 479701339 into the current directory:
+% >> DownloadImageSeries(pwd,479701339,'downsample',4)
 %
 %
 % PZ
