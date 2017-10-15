@@ -23,7 +23,7 @@ function DownloadImageSeries(outdir, expid, varargin)
 
 
 params = inputParser;
-params.addParamValue('range', '0,2500,0,2500,0,4095', @ischar);
+params.addParamValue('range', '0,2500,0,2500,0,4095', @ischar); %#ok<*NVREPL>
 params.addParamValue('downsample', 2, @isnumeric);
 params.parse(varargin{:});
 

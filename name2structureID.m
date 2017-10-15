@@ -50,6 +50,7 @@ if nargin<3
     quiet = false;
 end
 
+IDs=[];
 %loop through and find all the names
 for ii=1:length(names)
 

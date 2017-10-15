@@ -73,10 +73,10 @@ end
 % Parse input aruments
 params = inputParser;
 params.CaseSensitive = false;
-params.addParamValue('downloadAgain', false, @(x) islogical(x) || x==0 || x==1);
-params.addParamValue('ancestorsOf', {}, @(x) ischar(x) || isnumeric(x) || iscell(x))
-params.addParamValue('childrenOf', {}, @(x) ischar(x) || isnumeric(x) || iscell(x))
-params.addParamValue('excludeReferenceArea', false, @(x) islogical(x) || x==0 || x==1);
+params.addParameter('downloadAgain', false, @(x) islogical(x) || x==0 || x==1);
+params.addParameter('ancestorsOf', {}, @(x) ischar(x) || isnumeric(x) || iscell(x))
+params.addParameter('childrenOf', {}, @(x) ischar(x) || isnumeric(x) || iscell(x))
+params.addParameter('excludeReferenceArea', false, @(x) islogical(x) || x==0 || x==1);
 params.parse(varargin{:})
 
 downloadAgain = params.Results.downloadAgain;
@@ -96,9 +96,11 @@ cachedMAT = fullfile(tempdir,sprintf('%s_CACHED.mat',mfilename));
 if ~exist(cachedMAT,'file') || downloadAgain
     % The data are to be re-read or we couldn't find any cached data
 
-    % The adult mouse structure graph has an id of 1.       
+
+    % The adult mouse structure graph has an id of 1.
+    fprintf('Pulling ARA structure list from the web\n')
     url='http://api.brain-map.org/api/v2/data/Structure/query.csv?criteria=[graph_id$eq1]&num_rows=all';
-    [~,status] = urlwrite(url,cachedCSV);
+    [~,status] = urlwrite(url,cachedCSV,'Timeout',5);
     if ~status
         error('Failed to get CSV file from URL %s', url)
     end
@@ -107,8 +109,6 @@ if ~exist(cachedMAT,'file') || downloadAgain
     if fid<0
         error('Failed to open CSV file at %s\n', cachedCSV)
     end
-
-    col_names = strsplit(fgetl(fid),','); %The names of the columns in the main cell array
 
     %Loop through and read each data row
     readParams={'%d%d%q%q%d%d%d%d%d%d%d%d%s%s%s%s%s%d%d%d%s\n','delimiter',','};
@@ -254,13 +254,18 @@ function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf,
     end
 
     % Now we will loop through the whole table and look for rows that list each of these
-    % values in their structure_id_path
+    % values in their structure_id_path. It will be faster if we pre-preprocess the ID hierarchies
+    sIDPathSplit = cellfun(@(x) strsplit(x,'/'), ARA_table.structure_id_path,'UniformOutput',false);
+    for ii=1:length(sIDPathSplit)
+        sIDPathSplit{ii} = cell2mat(cellfun(@str2num,sIDPathSplit{ii},'UniformOutput',false));
+    end
+
     tableRowInds = [];
     for thisInd = 1:length(ind)
         for thisRow = 1:height(ARA_table)
 
-            sID = strsplit(ARA_table.structure_id_path{thisRow},'/');
-            sID = cell2mat(cellfun(@str2num,sID,'UniformOutput',false));
+            sID = sIDPathSplit{thisRow};
+
             f=find(sID==ind(thisInd));
             if ~isempty(f)
                 %Don't keep if this is the root area whose children we are looking for if the user asked to discard this
