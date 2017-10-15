@@ -260,10 +260,10 @@ function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf,
         sIDPathSplit{ii} = cell2mat(cellfun(@str2num,sIDPathSplit{ii},'UniformOutput',false));
     end
 
+
     tableRowInds = [];
     for thisInd = 1:length(ind)
         for thisRow = 1:height(ARA_table)
-
             sID = sIDPathSplit{thisRow};
 
             f=find(sID==ind(thisInd));
@@ -277,6 +277,8 @@ function [returnedTable,tableRowInds] = returnChildrenOnly(ARA_table,childrenOf,
 
         end    
     end
+
+    tableRowInds = unique(tableRowInds);
 
     if isempty(tableRowInds)
         fprintf('\n\n *** NO CHILDREN FOUND. RETURNING EMPTY ARRAY ***\n\n')
